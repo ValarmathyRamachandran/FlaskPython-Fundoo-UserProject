@@ -1,9 +1,15 @@
 import json
-from datetime import datetime
 import jwt
-from flask import request, app
+from flask import request, app, Flask, jsonify
 from flask_restful import Resource
+import datetime
+
+import send_email
 from user.models import Users
+from user.utils import token_required
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = '7f64ce34f65257f16d15608f947c3a7c'
 
 
 class Registration(Resource):
@@ -17,12 +23,13 @@ class Registration(Resource):
         record = json.loads(req_data)
 
         del record['confirm_password']
-        user = Users(**record)
+        user = Users(id=record['id'], first_name=record['first_name'], last_name=record['last_name'],
+                     user_name=record['user_name'], email=record['email'], password=record['password'])
         user.save()
         return {'msg': 'User Registered successfully'}, 200
 
 
-#api.add_resource(Registration, '/registration')
+# api.add_resource(Registration, '/registration')
 
 
 class Login(Resource):
@@ -47,5 +54,12 @@ class Login(Resource):
             return {'msg': 'password didnot match'}
 
 
-#api.add_resource(Login, '/login')
+# api.add_resource(Login, '/login')
 
+class AccountActivation(Resource):
+    @token_required
+    def get(self, *args, **kwargs):
+        req_data = request.get_json()
+        user = Users.objects.get(email=req_data.get('email'))
+        print(*args, **kwargs)
+        return {'msg': 'sent email to user'}
