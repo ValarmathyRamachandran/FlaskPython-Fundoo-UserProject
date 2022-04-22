@@ -3,10 +3,10 @@ import jwt
 from flask import request, app, Flask, jsonify
 from flask_restful import Resource
 import datetime
+from send_email import send_email
 
-import send_email
 from user.models import Users
-from user.utils import token_required
+from user.utils import token_required, generate_token
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7f64ce34f65257f16d15608f947c3a7c'
@@ -21,15 +21,15 @@ class Registration(Resource):
         """
         req_data = request.data
         record = json.loads(req_data)
-
         del record['confirm_password']
         user = Users(id=record['id'], first_name=record['first_name'], last_name=record['last_name'],
                      user_name=record['user_name'], email=record['email'], password=record['password'])
+        if Users.objects.filter(email=user.email):
+            return{'msg': 'User Already exists'}
         user.save()
+        token = generate_token(user.email, app.config['SECRET_KEY'])
+        send_email(user.email, token)
         return {'msg': 'User Registered successfully'}, 200
-
-
-# api.add_resource(Registration, '/registration')
 
 
 class Login(Resource):
@@ -45,21 +45,29 @@ class Login(Resource):
             return {'msg': 'No user found'}
         else:
             if user.password == req_data.get('password'):
-                token = jwt.encode(
-                    {'email': user.email, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
-                    app.config['SECRET_KEY'], "HS256")
-
+                token = generate_token(user.email, app.config['SECRET_KEY'])
                 return {'msg': 'password matches', 'status code': 200, 'token': token}
 
             return {'msg': 'password didnot match'}
 
 
-# api.add_resource(Login, '/login')
-
 class AccountActivation(Resource):
-    @token_required
+    """
+    Flask-restful resource for activating user account.
+    """
     def get(self, *args, **kwargs):
-        req_data = request.get_json()
-        user = Users.objects.get(email=req_data.get('email'))
+        token = request.args.get('activate')
+        payload = jwt.decode(token, app.config.get('SECRET_KEY'), algorithms=["HS256"])
+        user = Users.objects.get(email=payload.get('email'))
+        if user is None:
+            return {'msg': 'No users found'}
+        if not user.is_active:
+            user.is_active = True
+            user.save()
+            return {'msg': 'Acct activated successfully'}
+        else:
+            return {'msg': 'Acct has been already activated'}
+        print(payload)
+
         print(*args, **kwargs)
-        return {'msg': 'sent email to user'}
+        return {'msg': payload}

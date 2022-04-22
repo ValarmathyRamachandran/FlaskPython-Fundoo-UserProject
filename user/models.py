@@ -1,4 +1,3 @@
-
 from mongoengine import Document, StringField, EmailField, BooleanField, DateTimeField, SequenceField
 
 
@@ -9,6 +8,7 @@ class Users(Document):
     user_name = StringField(max_length=255)
     email = EmailField(unique=True, required=True)
     password = StringField()
+    is_active = BooleanField(default=False)
 
 
 def to_json(self):
@@ -18,4 +18,5 @@ def to_json(self):
         "last_name": self.last_name,
         "user_name": self.user_name,
         "email": self.email,
-        "password": self.password}
+        "password": self.password,
+        "is_activ": self.is_active}

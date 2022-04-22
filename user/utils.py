@@ -1,8 +1,16 @@
 # decorator for verifying the JWT
+import datetime
+
 import jwt
 from flask import request, jsonify, app
+import user
 
 from user.models import Users
+
+
+def generate_token(mail, Secret):
+    return jwt.encode({'email': mail, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
+                      Secret, algorithm="HS256")
 
 
 def token_required(f):
@@ -27,4 +35,3 @@ def token_required(f):
         return f(current_user, *args, **kwargs)
 
     return decorated
-
