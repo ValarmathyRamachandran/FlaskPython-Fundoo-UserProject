@@ -6,19 +6,17 @@ from email.mime.text import MIMEText
 from flask import flash
 
 
-def send_email(To, Token):
+def send_email(To, Subject, message, Token):
     # create message object instance
     msg = MIMEMultipart()
 
-    message = "Hi, Your Account has been Registered Successfully! " \
-              "\n Please Click the below link to activate your account  \n http://127.0.0.1:4040/activation?activate=" \
-              + Token
+    message = message + Token
 
     # setup the parameters of the message
     password = "Test@12345"
     msg['From'] = "valarmathyb123@gmail.com"
     msg['To'] = To
-    msg['Subject'] = "Account Activation"
+    msg['Subject'] = Subject
 
     # add in the message body
     msg.attach(MIMEText(message, 'plain'))
@@ -37,7 +35,3 @@ def send_email(To, Token):
     server.quit()
 
     print("successfully sent email to %s:" % (msg['To']))
-
-
-
-

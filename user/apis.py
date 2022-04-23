@@ -25,10 +25,13 @@ class Registration(Resource):
         user = Users(id=record['id'], first_name=record['first_name'], last_name=record['last_name'],
                      user_name=record['user_name'], email=record['email'], password=record['password'])
         if Users.objects.filter(email=user.email):
-            return{'msg': 'User Already exists'}
+            return {'msg': 'User Already exists'}
         user.save()
         token = generate_token(user.email, app.config['SECRET_KEY'])
-        send_email(user.email, token)
+        send_email(user.email, "Account Activation", "Hi, Your Account has been Registered Successfully! "
+                                                     "\n Please Click the below link to activate your account  "
+                                                     "\n http://127.0.0.1:4040/activation?activate=",
+                   token)
         return {'msg': 'User Registered successfully'}, 200
 
 
@@ -55,6 +58,7 @@ class AccountActivation(Resource):
     """
     Flask-restful resource for activating user account.
     """
+
     def get(self, *args, **kwargs):
         token = request.args.get('activate')
         payload = jwt.decode(token, app.config.get('SECRET_KEY'), algorithms=["HS256"])
@@ -71,3 +75,26 @@ class AccountActivation(Resource):
 
         print(*args, **kwargs)
         return {'msg': payload}
+
+
+class ForgotPassword(Resource):
+    def get(self, *args, **kwargs):
+        user_email = input("Please enter you email address and we will send a password reset link to your email")
+        token = generate_token(user_email, app.config['SECRET_KEY'])
+        send_email(user_email, "Forgot password", "Hi, Please click the below link to reset your password /n"
+                                                  " \n http://127.0.0.1:4040/resetpassword?reset=", token)
+        return {'msg': 'sent email along with reset link'}
+
+
+class ResetPassword(Resource):
+    def get(self, *args, **kwargs):
+        req_data = request.get_json()
+        user = Users.objects.get(password=req_data.get('password'))
+        token = request.args.get('reset')
+        payload = jwt.decode(token, app.config.get('SECRET_KEY'), algorithms=["HS256"])
+        print(payload)
+
+        if user.is_active:
+            user.password = user.new_password
+            user.save()
+            return {'msg': 'password was changed successfully'}

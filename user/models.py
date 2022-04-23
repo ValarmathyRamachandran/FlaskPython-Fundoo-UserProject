@@ -8,6 +8,7 @@ class Users(Document):
     user_name = StringField(max_length=255)
     email = EmailField(unique=True, required=True)
     password = StringField()
+    new_password = StringField()
     is_active = BooleanField(default=False)
 
 
