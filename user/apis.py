@@ -79,22 +79,25 @@ class AccountActivation(Resource):
 
 class ForgotPassword(Resource):
     def get(self, *args, **kwargs):
-        user_email = input("Please enter you email address and we will send a password reset link to your email")
-        token = generate_token(user_email, app.config['SECRET_KEY'])
-        send_email(user_email, "Forgot password", "Hi, Please click the below link to reset your password /n"
+        req_data = request.get_json()
+        user = Users.objects.get(email=req_data.get('email'))
+
+        token = generate_token(user.email, app.config['SECRET_KEY'])
+        send_email(user.email, "Forgot password", "Hi, Please click the below link to reset your password "
                                                   " \n http://127.0.0.1:4040/resetpassword?reset=", token)
-        return {'msg': 'sent email along with reset link'}
+        return {'msg': 'sent email to user along with reset link'}
 
 
 class ResetPassword(Resource):
     def get(self, *args, **kwargs):
-        req_data = request.get_json()
-        user = Users.objects.get(password=req_data.get('password'))
         token = request.args.get('reset')
         payload = jwt.decode(token, app.config.get('SECRET_KEY'), algorithms=["HS256"])
-        print(payload)
+        req_data = request.get_json()
+        user = Users.objects.get(email=payload.get('email'))
 
+        if user is None:
+            return {'msg': 'No users found'}
         if user.is_active:
-            user.password = user.new_password
+            user.password = req_data.get("new_password")
             user.save()
             return {'msg': 'password was changed successfully'}
