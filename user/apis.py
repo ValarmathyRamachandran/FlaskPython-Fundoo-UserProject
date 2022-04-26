@@ -22,7 +22,7 @@ class Registration(Resource):
         req_data = request.data
         record = json.loads(req_data)
         del record['confirm_password']
-        user = Users(id=record['id'], first_name=record['first_name'], last_name=record['last_name'],
+        user = Users(first_name=record['first_name'], last_name=record['last_name'],
                      user_name=record['user_name'], email=record['email'], password=record['password'])
         if Users.objects.filter(email=user.email):
             return {'msg': 'User Already exists'}
@@ -95,9 +95,10 @@ class ResetPassword(Resource):
         req_data = request.get_json()
         user = Users.objects.get(email=payload.get('email'))
 
-        if user is None:
+        if not user:
             return {'msg': 'No users found'}
         if user.is_active:
             user.password = req_data.get("new_password")
             user.save()
             return {'msg': 'password was changed successfully'}
+        return {'msg': 'User is inactive'}
