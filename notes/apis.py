@@ -1,5 +1,6 @@
 from pkgutil import get_data
 
+import jwt
 from flask import request, Flask, json, jsonify
 from flask_restful import Resource
 
@@ -10,11 +11,14 @@ app = Flask(__name__)
 
 
 class CreateNotes(Resource):
-
-    def post(self):
+    @token_required
+    def post(self, *args, **kwargs):
         req_data = request.data
         data = json.loads(req_data)
-        new_note = Notes(title=data['title'], description=data['description'])
+        user = kwargs.get('user')
+        user_id = user.id
+        print(user_id)
+        new_note = Notes(title=data['title'], description=data['description'], user_id=data['user_id'])
         new_note.save()
         return {'msg': 'New note created successfully'}
 
@@ -22,9 +26,9 @@ class CreateNotes(Resource):
 class GetNotes(Resource):
     @token_required
     def get(self, *args, **kwargs):
-        #user = kwargs.get('user')
-        #user_id = user.id
-        #print(user_id)
+        # user = kwargs.get('user')
+        # user_id = user.id
+        # print(user_id)
 
         notes = Notes.objects()
 

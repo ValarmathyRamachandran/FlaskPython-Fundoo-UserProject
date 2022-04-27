@@ -14,8 +14,10 @@ class Notes(Document):
     def to_json(self):
         return {
             "id": self.id,
+            "user_id": self.user_id,
             "title": self.title,
             "description": self.description,
-            "date_created": str(self.date_created)
+            "date_created": str(self.date_created),
+            "date_updated": str(self.date_updated)
 
         }
