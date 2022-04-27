@@ -17,8 +17,7 @@ class CreateNotes(Resource):
         data = json.loads(req_data)
         user = kwargs.get('user')
         user_id = user.id
-        print(user_id)
-        new_note = Notes(title=data['title'], description=data['description'], user_id=data['user_id'])
+        new_note = Notes(user_id=user_id, title=data['title'], description=data['description'])
         new_note.save()
         return {'msg': 'New note created successfully'}
 
@@ -26,11 +25,9 @@ class CreateNotes(Resource):
 class GetNotes(Resource):
     @token_required
     def get(self, *args, **kwargs):
-        # user = kwargs.get('user')
-        # user_id = user.id
-        # print(user_id)
-
-        notes = Notes.objects()
+        user = kwargs.get('user')
+        user_id = user.id
+        notes = Notes.objects.filter(user_id=user.id)
 
         if not notes:
             return {'error': 'Notes info not found'}
@@ -44,23 +41,25 @@ class UpdateNote(Resource):
     def put(self, *args, **kwargs):
         user = kwargs.get('user')
         user_id = user.id
-        print(user_id)
         record = json.loads(request.data)
-        notes = Notes.objects(title=record['title'])
+        notes = Notes.objects.filter(user_id=user.id)
+        print(notes)
         if not notes:
             return {'error': 'notes  not found'}
         else:
-            notes.update(title=record['new_title'], description=record['description'])
+            notes.update_one(title=record['new_title'], description=record['new_description'])
             return {'msg': 'note was successfully updated', 'code': 200}
 
 
 class DeleteNote(Resource):
     @token_required
     def delete(self, *args, **kwargs):
+        user = kwargs.get('user')
+        user_id = user.id
         record = json.loads(request.data)
-        notes = Notes.objects(title=record['title'])
+        notes = Notes.objects(user_id=user.id)
         if not notes:
             return {'error': 'notes not found'}
         else:
-            notes.delete()
+            notes.delete_one()
         return {'msg': 'notes deleted successfully', 'code': 200}

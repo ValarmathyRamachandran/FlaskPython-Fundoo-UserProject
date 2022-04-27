@@ -1,11 +1,10 @@
 import datetime
-from mongoengine import SequenceField, StringField, DateTimeField, Document
-from wtforms import IntegerField
+from mongoengine import SequenceField, StringField, DateTimeField, Document, IntField
 
 
 class Notes(Document):
     id = SequenceField(primary_key=True)
-    user_id = IntegerField(nullable=False)
+    user_id = IntField(nullable=False)
     title = StringField(max_length=100, nullable=False)
     description = StringField(max_length=500)
     date_created = DateTimeField(default=datetime.datetime.now)
