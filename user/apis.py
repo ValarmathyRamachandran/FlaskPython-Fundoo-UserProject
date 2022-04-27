@@ -3,8 +3,8 @@ import jwt
 from flask import request, app, Flask, jsonify
 from flask_restful import Resource
 import datetime
-from send_email import send_email
 
+from common.email_service import send_email
 from user.models import Users
 from user.utils import token_required, generate_token
 

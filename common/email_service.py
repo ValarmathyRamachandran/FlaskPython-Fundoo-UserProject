@@ -1,6 +1,14 @@
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+# environment variable
+
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
+PASSWORD = os.getenv("PASSWORD")
 
 
 def send_email(To, Subject, message, Token):
@@ -10,8 +18,8 @@ def send_email(To, Subject, message, Token):
     message = message + Token
 
     # setup the parameters of the message
-    password = "Test@12345"
-    msg['From'] = "valarmathyb123@gmail.com"
+    password = PASSWORD
+    msg['From'] = EMAIL_ADDRESS
     msg['To'] = To
     msg['Subject'] = Subject
 

@@ -22,17 +22,17 @@ class CreateNotes(Resource):
 class GetNotes(Resource):
     @token_required
     def get(self, *args, **kwargs):
-        user = kwargs.get('user')
-        user_id = user.id
-        print(user_id)
+        #user = kwargs.get('user')
+        #user_id = user.id
+        #print(user_id)
 
-        notes = json.loads(Notes.objects())
+        notes = Notes.objects()
 
         if not notes:
             return {'error': 'Notes info not found'}
         else:
             all_notes = [note.to_json() for note in notes]
-            return {"Notes-info": json.dumps(all_notes)}
+            return {"Notes-info": all_notes}
 
 
 class UpdateNote(Resource):
