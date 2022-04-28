@@ -1,5 +1,5 @@
 from notes import CreateNotes, GetNotes
-from notes.apis import UpdateNote, DeleteNote
+from notes.apis import UpdateNote, DeleteNote, GetTrash, GetPinned, ArchiveNote, GetArchived, PinnedNote
 from user.apis import Registration, Login, AccountActivation, ForgotPassword, ResetPassword
 
 api_routes = [
@@ -11,6 +11,11 @@ api_routes = [
     ('/createnote', CreateNotes),
     ('/getnotes', GetNotes),
     ('/updatenote', UpdateNote),
-    ('/deletenote', DeleteNote)
+    ('/deletenote', DeleteNote),
+    ('/pinnednote', PinnedNote),
+    ('/gettrash', GetTrash),
+    ('/getpinned', GetPinned),
+    ('/archivenote', ArchiveNote),
+    ('/getarchived', GetArchived)
 
 ]
