@@ -1,7 +1,4 @@
 from datetime import datetime
-from pkgutil import get_data
-
-import jwt
 from flask import request, Flask, json, jsonify
 from flask_restful import Resource
 
@@ -18,10 +15,12 @@ class CreateNotes(Resource):
         data = json.loads(req_data)
         user = kwargs.get('user')
         user_id = user.id
-        new_note = Notes(user_id=user_id, title=data['title'], description=data['description'], is_deleted=False,
-                         is_pinned=False)
+        new_note = Notes(user_id=user_id, title=data.get('title'), description=data.get('description'), is_deleted=False,
+                         is_pinned=False, is_archived=False)
+        if len(new_note.title) <= 0:
+            return {'msg': 'Please enter required details', 'code': 400}
         new_note.save()
-        return {'msg': 'New note created successfully'}
+        return {'msg': 'New note created successfully', 'code': 200}
 
 
 class GetNotes(Resource):
@@ -29,13 +28,14 @@ class GetNotes(Resource):
     def get(self, *args, **kwargs):
         user = kwargs.get('user')
         user_id = user.id
-        notes = Notes.objects.filter(user_id=user_id, is_deleted=False)
+        notes = Notes.objects.filter(user_id=user_id, is_deleted=False, is_archived=False)
 
         if not notes:
             return {'error': 'Notes info not found'}
 
-        all_notes = [note.to_json() for note in notes]
-        return {"Notes-info": all_notes}
+        all_notes = [note.to_json() for note in notes.order_by('is-pinned') ]
+
+        return {'msg': all_notes}
 
 
 class UpdateNote(Resource):
@@ -73,24 +73,19 @@ class DeleteNote(Resource):
         return {'msg': 'notes deleted successfully', 'code': 200}
 
 
-class ArchiveNote(Resource):
+class NoteOperations(Resource):
     @token_required
     def put(self, *args, **kwargs):
         record = json.loads(request.data)
-
         note = Notes.objects.get(id=record['id'])
         if not note:
             return {'error': 'Notes info not found'}
         note.is_archived = True
         note.save()
-        return {'msg': 'notes archived successfully', 'code': 200}
+        return {'msg': 'notes archived successfully', 'code': 201}
 
-
-class PinnedNote(Resource):
-    @token_required
-    def put(self, *args, **kwargs):
+    def post(self):
         record = json.loads(request.data)
-
         note = Notes.objects.get(id=record['id'])
         if not note:
             return {'error': 'Notes info not found'}
