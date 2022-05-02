@@ -1,26 +1,37 @@
 from datetime import datetime
-from flask import request, Flask, json, jsonify
+from flask import request, Flask, json
 from flask_restful import Resource
 
 from common.token_operation import token_required
 from notes.models import Notes
 
+
 app = Flask(__name__)
+
+
+class EmptyError(Exception):
+    pass
 
 
 class CreateNotes(Resource):
     @token_required
-    def post(self, *args, **kwargs):
+    def post(self, **kwargs):
         req_data = request.data
         data = json.loads(req_data)
         user = kwargs.get('user')
         user_id = user.id
-        new_note = Notes(user_id=user_id, title=data.get('title'), description=data.get('description'), is_deleted=False,
+
+        new_note = Notes(user_id=user_id, title=data.get('title'), description=data.get('description'),
+                         is_deleted=False,
                          is_pinned=False, is_archived=False)
-        if len(new_note.title) <= 0:
-            return {'msg': 'Please enter required details', 'code': 400}
-        new_note.save()
-        return {'msg': 'New note created successfully', 'code': 200}
+        try:
+            if not new_note.title:
+                raise EmptyError("Title should not be empty", 404)
+            if new_note:
+                new_note.save()
+                return {'msg': 'New note created successfully', 'code': 200}
+        except EmptyError as e:
+            return e.__dict__
 
 
 class GetNotes(Resource):
@@ -31,9 +42,9 @@ class GetNotes(Resource):
         notes = Notes.objects.filter(user_id=user_id, is_deleted=False, is_archived=False)
 
         if not notes:
-            return {'error': 'Notes info not found'}
+            return {'error': 'Notes info not found', 'code': 404}
 
-        all_notes = [note.to_json() for note in notes.order_by('is-pinned') ]
+        all_notes = [note.to_json() for note in notes.order_by('is-pinned')]
 
         return {'msg': all_notes}
 
@@ -102,10 +113,10 @@ class GetTrash(Resource):
         notes = Notes.objects.filter(user_id=user_id, is_deleted=True, is_archived=False)
 
         if not notes:
-            return {'error': 'Notes info not found'}
+            return {'error': 'Notes info not found', 'code': 404}
 
         all_notes = [note.to_json() for note in notes]
-        return {"Deleted Notes": all_notes}
+        return {'msg': all_notes, 'code': 200}
 
 
 class GetPinned(Resource):
@@ -116,10 +127,10 @@ class GetPinned(Resource):
         notes = Notes.objects.filter(user_id=user_id, is_pinned=True)
 
         if not notes:
-            return {'error': 'Notes info not found'}
+            return {'error': 'Notes info not found', 'code': 404}
 
         all_notes = [note.to_json() for note in notes]
-        return {"Pinned Notes ": all_notes}
+        return {'msg': all_notes, 'code': 200}
 
 
 class GetArchived(Resource):
@@ -130,7 +141,7 @@ class GetArchived(Resource):
         notes = Notes.objects.filter(user_id=user_id, is_archived=True)
 
         if not notes:
-            return {'error': 'Notes info not found'}
+            return {'error': 'Notes info not found', 'code': 200}
 
         all_notes = [note.to_json() for note in notes]
-        return {"Archived Notes ": all_notes}
+        return {'msg': all_notes, 'code': 200}

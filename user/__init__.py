@@ -1,5 +1,7 @@
+from labels import AddLabel
+from labels.apis import DeleteLabel
 from notes import CreateNotes, GetNotes
-from notes.apis import UpdateNote, DeleteNote, GetTrash,  GetArchived, NoteOperations
+from notes.apis import UpdateNote, DeleteNote, GetTrash, GetArchived, NoteOperations, GetPinned
 from user.apis import Registration, Login, AccountActivation, ForgotPassword, ResetPassword
 
 api_routes = [
@@ -12,8 +14,11 @@ api_routes = [
     ('/getnotes', GetNotes),
     ('/updatenote', UpdateNote),
     ('/deletenote', DeleteNote),
+    ('/gettrash', GetTrash),
     ('/noteoperation', NoteOperations),
-
-    ('/getarchived', GetArchived)
+    ('/getpinned', GetPinned),
+    ('/getarchived', GetArchived),
+    ('/addlabel', AddLabel),
+    ('/deletelabel', DeleteLabel)
 
 ]

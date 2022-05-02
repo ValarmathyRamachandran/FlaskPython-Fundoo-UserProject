@@ -6,6 +6,7 @@ from user.models import Users
 
 def token_required(f):
     def decorated(*args, **kwargs):
+        print(**kwargs)
         token = None
         # jwt is passed in the request header
         print(request.headers)
