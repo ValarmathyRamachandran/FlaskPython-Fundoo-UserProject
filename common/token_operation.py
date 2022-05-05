@@ -1,12 +1,11 @@
 import jwt
 from flask import request, jsonify
-
 from user.models import Users
 
 
 def token_required(f):
     def decorated(*args, **kwargs):
-        print(**kwargs)
+        #print(**kwargs)
         token = None
         # jwt is passed in the request header
         print(request.headers)

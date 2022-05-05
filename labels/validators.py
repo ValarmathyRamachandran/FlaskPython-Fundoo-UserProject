@@ -10,4 +10,8 @@ def validate_add_label(data):
     return True
 
 
+def validate_delete_label(label_name):
+    label = Label.objects.filter(label=label_name).first()
+    if not label:
+        return {'Error': 'Label doesnt exist'}
 

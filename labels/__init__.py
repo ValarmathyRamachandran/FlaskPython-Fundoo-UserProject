@@ -1,5 +1,6 @@
-from .apis import AddLabel
+from .apis import AddLabel, DeleteLabel
 
 label_routes = [
-    (AddLabel, '/addlabel')
+    (AddLabel, '/addlabel'),
+    (DeleteLabel, '/deletelabel')
 ]

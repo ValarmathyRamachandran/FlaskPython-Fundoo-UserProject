@@ -11,11 +11,11 @@ EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
 PASSWORD = os.getenv("PASSWORD")
 
 
-def send_email(To, Subject, message, Token):
+def send_email(To, Subject, template, token):
     # create message object instance
     msg = MIMEMultipart()
 
-    message = message + Token
+    # message = message + Token
 
     # setup the parameters of the message
     password = PASSWORD
@@ -24,7 +24,8 @@ def send_email(To, Subject, message, Token):
     msg['Subject'] = Subject
 
     # add in the message body
-    msg.attach(MIMEText(message, 'plain'))
+    # msg.attach(MIMEText(message, 'plain'))
+    msg.attach(MIMEText(template+token, 'html'))
 
     # create server
     server = smtplib.SMTP('smtp.gmail.com: 587')

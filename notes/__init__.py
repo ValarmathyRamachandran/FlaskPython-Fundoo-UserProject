@@ -1,4 +1,7 @@
-from notes.apis import CreateNotes, GetNotes, UpdateNote, DeleteNote, GetTrash, NoteOperations, GetPinned, GetArchived
+from flask import views
+
+from notes.apis import CreateNotes, GetNotes, UpdateNote, DeleteNote, GetTrash, NoteOperations, GetPinned, GetArchived, \
+    NoteLabel
 
 notes_routes = [
     ('/createnote', CreateNotes),
@@ -8,6 +11,7 @@ notes_routes = [
     ('/gettrash', GetTrash),
     ('/noteoperation', NoteOperations),
     ('/getpinned', GetPinned),
-    ('/getarchived', GetArchived)
+    ('/getarchived', GetArchived),
+    ('/label', NoteLabel)
 
 ]

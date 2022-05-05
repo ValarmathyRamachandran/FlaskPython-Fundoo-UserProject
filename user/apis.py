@@ -1,6 +1,6 @@
 import json
 import jwt
-from flask import request, app, Flask, jsonify
+from flask import request, app, Flask, jsonify, render_template
 from flask_restful import Resource
 import datetime
 
@@ -28,10 +28,12 @@ class Registration(Resource):
             return {'msg': 'User Already exists', 'code': 409}
         user.save()
         token = generate_token(user.email, app.config['SECRET_KEY'])
-        send_email(user.email, "Account Activation", "Hi, Your Account has been Registered Successfully! "
-                                                     "\n Please Click the below link to activate your account  "
-                                                     "\n http://127.0.0.1:4040/activation?activate=",
-                   token)
+        template = render_template('activation_template.html', token=token)
+        #send_email(user.email, "Account Activation", "Hi, Your Account has been Registered Successfully! "
+                                                     #"\n Please Click the below link to activate your account  "
+                                                     #"\n http://127.0.0.1:4040/activation?activate=",
+                   #token)
+        send_email(user.email, "Account Activation", template, token)
         return {'msg': 'User Registered successfully', 'code': 201}
 
 
@@ -69,6 +71,7 @@ class AccountActivation(Resource):
             user.is_active = True
             user.save()
             return {'msg': 'Account activated successfully', 'code': 200}
+
         else:
             return {'msg': 'Account has been already activated', 'code': 409}
 
