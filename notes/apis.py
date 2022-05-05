@@ -3,6 +3,7 @@ from flask import request, Flask, json
 from flask_restful import Resource
 
 import labels
+from collaborators.models import Collaborators
 from common.token_operation import token_required
 from labels import models
 from labels.models import Label
@@ -48,18 +49,20 @@ class GetNotes(Resource):
 
         # all_notes = [note.to_json() for note in notes]
         notes = Notes.objects.all()
-        print(notes)
+
         res = []
         for note in notes:
             data = note.to_json()
+            collaborators = Collaborators.objects.filter(note_id=data.get('id'))
+            data['collaborators'] = collaborators.to_json()
             label = data.get('label')
             _label = []
             for l in label:
                 _label.append(l.to_json())
                 data['label'] = _label
-                res.append(data)
+            res.append(data)
 
-            return {'msg': 'success', 'code': 200, 'data': res}
+        return {'msg': 'success', 'code': 200, 'data': res}
 
 
 class UpdateNote(Resource):
@@ -167,6 +170,8 @@ class NoteLabel(Resource):
         body = json.loads(req_data)
         label = body.get('label')
         user = kwargs.get('user')
+        ids = request.args.get('id')
+
         user_id = user.id
         label_data = models.Label.objects.filter(user_id=user_id, label=label).first()
         if not label_data:
@@ -174,7 +179,7 @@ class NoteLabel(Resource):
             label_data.save()
         try:
 
-            note = Notes.objects.filter(user_id=user_id).first()
+            note = Notes.objects.filter(user_id=user_id, id=ids).first()
             if not note:
                 raise ('Note is not present', 'code:400')
         except Exception as e:
@@ -231,12 +236,12 @@ class NoteCollaborators(Resource):
     def post(self, **kwargs):
         req_data = request.data
         body = json.loads(req_data)
-        email = body.get('email')
+        collaborator = body.get('collaborator')
         user = kwargs.get('user')
         user_id = user.id
-        collaborator_data = models.Collaborator.objects.filter(user_id=user_id, email=email).first()
+        collaborator_data = Collaborators.objects.filter(user_id=user_id).first()
         if not collaborator_data:
-            collaborator_data = models.Collaborator(user_id=user_id, email=email)
+            collaborator_data = Collaborators(user_id=user_id, collaborator=collaborator)
             collaborator_data.save()
         try:
 
@@ -245,8 +250,8 @@ class NoteCollaborators(Resource):
                 raise ('Note is not present', 'code:400')
         except Exception as e:
             return e.__dict__
-        for data in note.email:
-            if data.email == email:
+        for data in note.collabortor:
+            if data.collabortor == collaborator:
                 return {'Error': ' Already this Collaborator was added to this note', 'code': '400'}
         note.update(push__collaborators=collaborator_data)
 

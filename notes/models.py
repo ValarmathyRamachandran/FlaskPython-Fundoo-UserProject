@@ -4,7 +4,6 @@ from mongoengine import SequenceField, StringField, DateTimeField, Document, Int
 
 import notes
 from labels import models
-from collaborators import models
 
 
 class Notes(Document):
@@ -18,7 +17,8 @@ class Notes(Document):
     is_deleted = BooleanField(default=False)
     is_archived = BooleanField(default=False)
     label = ListField(ReferenceField(models.Label))
-    collaborators = ListField(ReferenceField(models.Collaborators))
+
+    # collaborators = ListField(ReferenceField('self', required=False))
 
     def to_json(self):
         notes = dict()
@@ -32,7 +32,7 @@ class Notes(Document):
         notes['is_deleted'] = str(self.is_deleted)
         notes['is_archived'] = str(self.is_archived)
         notes['label'] = self.label
-        notes['collaborators'] = self.label
+        # notes['collaborators'] = self.collaborators
         return notes
 
         # "id": self.id,

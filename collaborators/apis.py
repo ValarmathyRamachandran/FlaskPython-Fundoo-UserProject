@@ -17,7 +17,10 @@ class AddCollaborators(Resource):
 
         req_data = request.data
         data = json.loads(req_data)
+        email = data.get('email')
+        # user = kwargs.get('user')
+        # user_id = user.id
 
-        collaborator = Collaborators(user_id=data.get('user_id'), note_id=data.get('note_id'))
+        collaborator = Collaborators(user_id=data.get('user_id'), note_id=data.get('note_id'), email=email)
         collaborator.save()
         return {'msg': 'Collaborators added successfully', 'code': 201}

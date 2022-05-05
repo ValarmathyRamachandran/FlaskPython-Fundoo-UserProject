@@ -2,7 +2,8 @@ from collaborators.apis import AddCollaborators
 from labels import AddLabel, DeleteLabel
 
 from notes import CreateNotes, GetNotes
-from notes.apis import UpdateNote, DeleteNote, GetTrash, GetArchived, NoteOperations, GetPinned, NoteLabel
+from notes.apis import UpdateNote, DeleteNote, GetTrash, GetArchived, NoteOperations, GetPinned, NoteLabel, \
+    NoteCollaborators
 from user.apis import Registration, Login, AccountActivation, ForgotPassword, ResetPassword
 
 api_routes = [
@@ -22,5 +23,6 @@ api_routes = [
     ('/addlabel', AddLabel),
     ('/deletelabel', DeleteLabel),
     ('/addcollabortors', AddCollaborators),
-    ('/label', NoteLabel)
+    ('/label', NoteLabel),
+    ('/notecollabortors', NoteCollaborators)
 ]
