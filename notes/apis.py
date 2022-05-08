@@ -1,9 +1,8 @@
 from datetime import datetime
 from flask import request, Flask, json
 from flask_restful import Resource
-
-import labels
 from collaborators.models import Collaborators
+from common import logger
 from common.token_operation import token_required
 from labels import models
 from labels.models import Label
@@ -19,6 +18,10 @@ class EmptyError(Exception):
 class CreateNotes(Resource):
     @token_required
     def post(self, **kwargs):
+        """
+        :param kwargs: includes user information
+        :return: notes created
+        """
         req_data = request.data
         data = json.loads(req_data)
         user = kwargs.get('user')
@@ -32,6 +35,7 @@ class CreateNotes(Resource):
                 raise EmptyError("Title should not be empty", 404)
             if new_note:
                 new_note.save()
+                logger.logging.info('Note created')
                 return {'msg': 'New note created successfully', 'code': 200}
         except EmptyError as e:
             return e.__dict__
@@ -39,7 +43,11 @@ class CreateNotes(Resource):
 
 class GetNotes(Resource):
     @token_required
-    def get(self, *args, **kwargs):
+    def get(self, **kwargs):
+        """
+        :param kwargs: user information
+        :return: all notes for the user
+        """
         user = kwargs.get('user')
         user_id = user.id
         notes = Notes.objects.filter(user_id=user_id, is_deleted=False, is_archived=False)
@@ -48,12 +56,12 @@ class GetNotes(Resource):
             return {'error': 'Notes info not found', 'code': 404}
 
         # all_notes = [note.to_json() for note in notes]
-        notes = Notes.objects.all()
+        notes = Notes.objects.all().order_by('-is_pinned', '-date_updated')
 
         res = []
         for note in notes:
             data = note.to_json()
-            collaborators = Collaborators.objects.filter(note_id=data.get('id'))
+            collaborators = Collaborators.objects.filter(note_id=data.get('id')).values_list('user_id')
             data['collaborators'] = collaborators.to_json()
             label = data.get('label')
             _label = []
@@ -82,7 +90,7 @@ class UpdateNote(Resource):
         notes.date_updated = datetime.now
         notes.user_id = user_id
         notes.save()
-
+        logger.logging.info('note updated')
         return {'msg': 'note was successfully updated', 'code': 200}
 
 
@@ -97,25 +105,28 @@ class DeleteNote(Resource):
 
         note.is_deleted = True
         note.save()
+        logger.logging.info('note deleted')
         return {'msg': 'notes deleted successfully', 'code': 200}
 
 
 class NoteOperations(Resource):
     @token_required
-    def put(self, *args, **kwargs):
+    def put(self, **kwargs):
         record = json.loads(request.data)
         note = Notes.objects.get(id=record['id'])
         if not note:
             return {'error': 'Notes info not found'}
+
         note.is_archived = True
         note.save()
         return {'msg': 'notes archived successfully', 'code': 201}
 
-    def post(self):
+    def post(self, **kwargs):
         record = json.loads(request.data)
         note = Notes.objects.get(id=record['id'])
         if not note:
-            return {'error': 'Notes info not found'}
+            return {'error': 'notes not found'}
+
         note.is_pinned = True
         note.save()
         return {'msg': 'notes Pinned successfully', 'code': 200}

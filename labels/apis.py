@@ -33,5 +33,4 @@ class DeleteLabel(Resource):
         user_id = user.id
         if validate_delete_label(label_name):
             label = Label.objects.filter(user_id=user_id, label=label_name).first()
-            print("label", label)
             return {'msg': 'Label deleted successfully' + label, 'code': 200}
