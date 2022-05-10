@@ -1,4 +1,5 @@
 from datetime import datetime
+import redis
 from flask import request, Flask, json
 from flask_restful import Resource
 from collaborators.models import Collaborators
@@ -9,6 +10,11 @@ from labels.models import Label
 from notes.models import Notes
 
 app = Flask(__name__)
+
+r = redis.Redis(
+    host='localhost',
+    port=6379,
+    decode_responses=True)
 
 
 class EmptyError(Exception):
@@ -41,6 +47,16 @@ class CreateNotes(Resource):
             return e.__dict__
 
 
+class NotExist(Exception):
+    pass
+
+
+def set_cache(key, value, expire_time):
+    json_dict = json.dumps(value)
+    r.set(key, json_dict)
+    r.expire(key, expire_time)
+
+
 class GetNotes(Resource):
     @token_required
     def get(self, **kwargs):
@@ -48,29 +64,37 @@ class GetNotes(Resource):
         :param kwargs: user information
         :return: all notes for the user
         """
+
         user = kwargs.get('user')
         user_id = user.id
+
+        key = f"{user_id}"
+        value = r.get(key)
+        if value:
+            data_value = json.loads(value)
+            return data_value
         notes = Notes.objects.filter(user_id=user_id, is_deleted=False, is_archived=False)
+        try:
+            if not notes:
+                raise NotExist('Notes info not found', 404)
+            if notes:
+                notes = Notes.objects.all().order_by('-is_pinned', '-date_updated')
+                res = []
+                for note in notes:
+                    data = note.to_json()
+                    collaborators = Collaborators.objects.filter(note_id=data.get('id')).values_list('user_id')
+                    data['collaborators'] = collaborators.to_json()
+                    label = data.get('label')
+                    _label = []
+                    for l in label:
+                        _label.append(l.to_json())
+                        data['label'] = _label
 
-        if not notes:
-            return {'error': 'Notes info not found', 'code': 404}
-
-        # all_notes = [note.to_json() for note in notes]
-        notes = Notes.objects.all().order_by('-is_pinned', '-date_updated')
-
-        res = []
-        for note in notes:
-            data = note.to_json()
-            collaborators = Collaborators.objects.filter(note_id=data.get('id')).values_list('user_id')
-            data['collaborators'] = collaborators.to_json()
-            label = data.get('label')
-            _label = []
-            for l in label:
-                _label.append(l.to_json())
-                data['label'] = _label
-            res.append(data)
-
-        return {'msg': 'success', 'code': 200, 'data': res}
+                    res.append(data)
+                    set_cache(key, data, 30)
+            return {'msg': 'success', 'code': 200, 'data': res}
+        except NotExist as e:
+            return e.__dict__
 
 
 class UpdateNote(Resource):
