@@ -1,5 +1,9 @@
+import json
+
 import jwt
 from flask import request, jsonify
+
+from notes.apis import r
 from user.models import Users
 
 
@@ -28,3 +32,9 @@ def token_required(f):
         return f(*args, **user)
 
     return decorated
+
+
+def set_cache(key, value, expire_time):
+    json_dict = json.dumps(value)
+    r.set(key, json_dict)
+    r.expire(key, expire_time)

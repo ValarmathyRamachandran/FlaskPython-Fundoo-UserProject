@@ -4,9 +4,9 @@ from flask import request, Flask, json
 from flask_restful import Resource
 from collaborators.models import Collaborators
 from common import logger
-from common.token_operation import token_required
+from common.exception import EmptyError
+from common.token_operation import token_required, set_cache
 from labels import models
-from labels.models import Label
 from notes.models import Notes
 
 app = Flask(__name__)
@@ -15,10 +15,6 @@ r = redis.Redis(
     host='localhost',
     port=6379,
     decode_responses=True)
-
-
-class EmptyError(Exception):
-    pass
 
 
 class CreateNotes(Resource):
@@ -49,12 +45,6 @@ class CreateNotes(Resource):
 
 class NotExist(Exception):
     pass
-
-
-def set_cache(key, value, expire_time):
-    json_dict = json.dumps(value)
-    r.set(key, json_dict)
-    r.expire(key, expire_time)
 
 
 class GetNotes(Resource):
