@@ -1,6 +1,6 @@
 from flask import views
 
-from notes.apis import CreateNotes, GetNotes, UpdateNote, DeleteNote, GetTrash, NoteOperations, GetPinned, GetArchived, \
+from notes.apis import CreateNotes, GetNotes, UpdateNote, DeleteNote, GetTrash, NoteOperations, GetPinned, GetArchived,\
     NoteLabel
 
 notes_routes = [

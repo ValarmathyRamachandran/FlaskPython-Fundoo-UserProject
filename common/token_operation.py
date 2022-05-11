@@ -1,15 +1,18 @@
 import json
-
 import jwt
-from flask import request, jsonify
-
-from notes.apis import r
+import redis
+from flask import request
 from user.models import Users
+
+r = redis.Redis(
+    host='localhost',
+    port=6379
+)
 
 
 def token_required(f):
     def decorated(*args, **kwargs):
-        #print(**kwargs)
+        # print(**kwargs)
         token = None
         # jwt is passed in the request header
         print(request.headers)
@@ -38,3 +41,8 @@ def set_cache(key, value, expire_time):
     json_dict = json.dumps(value)
     r.set(key, json_dict)
     r.expire(key, expire_time)
+
+
+def get_cache(key):
+    value = r.get(key)
+    return value

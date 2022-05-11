@@ -2,9 +2,8 @@ import json
 import jwt
 from flask import request, app, Flask, jsonify, render_template
 from flask_restful import Resource
-import datetime
 
-from common.email_service import send_email
+from tasks import send_email
 from user.models import Users
 from user.utils import token_required, generate_token
 
@@ -33,7 +32,8 @@ class Registration(Resource):
                                                      #"\n Please Click the below link to activate your account  "
                                                      #"\n http://127.0.0.1:4040/activation?activate=",
                    #token)
-        send_email(user.email, "Account Activation", template, token)
+        send_email.sleep(user.email, "Account Activation", template, token)
+
         return {'msg': 'User Registered successfully', 'code': 201}
 
 
