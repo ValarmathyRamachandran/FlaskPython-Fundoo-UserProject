@@ -6,7 +6,6 @@ from flask_restful import Resource
 from collaborators.models import Collaborators
 from common import logger
 from common.token_operation import token_required
-from notes.models import Notes
 from user.models import Users
 
 

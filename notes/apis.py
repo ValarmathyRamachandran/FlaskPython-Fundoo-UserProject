@@ -1,10 +1,12 @@
-from datetime import datetime
+from datetime import datetime, time
 import redis
 from flask import request, Flask, json
 from flask_restful import Resource
+from flask_restful_swagger import swagger
+
 from collaborators.models import Collaborators
 from common import logger
-from common.exception import EmptyError
+from common.exception import EmptyError, NotExist
 from common.token_operation import token_required, set_cache
 from labels import models
 from notes.models import Notes
@@ -43,12 +45,10 @@ class CreateNotes(Resource):
             return e.__dict__
 
 
-class NotExist(Exception):
-    pass
-
-
 class GetNotes(Resource):
     @token_required
+    @swagger.model
+    @swagger.operation(notes='swagger is working')
     def get(self, **kwargs):
         """
         :param kwargs: user information
@@ -281,3 +281,17 @@ class NoteCollaborators(Resource):
         note.update(push__collaborators=collaborator_data)
 
         return {'msg': 'Collaborator added successfully', 'code': '200'}
+
+
+class Reminder(Resource):
+    @token_required
+    def post(self, **kwargs):
+        req_data = request.data
+        body = json.loads(req_data)
+        reminder = body.get('reminder')
+        notes = Notes()
+        now = int(round(time.time() * 1000))
+        then = now + 3600000  # one hour after `now`
+
+
+

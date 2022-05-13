@@ -17,6 +17,7 @@ class Notes(Document):
     is_deleted = BooleanField(default=False)
     is_archived = BooleanField(default=False)
     label = ListField(ReferenceField(models.Label))
+    reminder = DateTimeField(default=datetime)
 
     # collaborators = ListField(ReferenceField('self', required=False))
 
@@ -32,7 +33,7 @@ class Notes(Document):
         notes['is_deleted'] = str(self.is_deleted)
         notes['is_archived'] = str(self.is_archived)
         notes['label'] = self.label
-        # notes['collaborators'] = self.collaborators
+        notes['reminder'] = str(self.reminder)
         return notes
 
         # "id": self.id,

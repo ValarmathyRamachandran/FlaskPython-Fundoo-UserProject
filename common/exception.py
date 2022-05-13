@@ -14,3 +14,7 @@ class AlreadyExist(ErrorException):
 
 class EmptyError(ErrorException):
     pass
+
+
+class NotExist(ErrorException):
+    pass
