@@ -18,3 +18,7 @@ class EmptyError(ErrorException):
 
 class NotExist(ErrorException):
     pass
+
+
+class PasswordMismatched(ErrorException):
+    pass
