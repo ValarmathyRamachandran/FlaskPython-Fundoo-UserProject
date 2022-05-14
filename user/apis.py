@@ -2,6 +2,8 @@ import json
 import jwt
 from flask import request, app, Flask, jsonify, render_template
 from flask_restful import Resource
+from flask_restful_swagger import swagger
+
 from tasks import send_email
 from user.models import Users
 from user.utils import token_required, generate_token
@@ -11,8 +13,10 @@ app.config['SECRET_KEY'] = '7f64ce34f65257f16d15608f947c3a7c'
 
 
 class Registration(Resource):
-
+    @swagger.model
+    @swagger.operation(notes='swagger is working')
     def post(self):
+
         """
         post api is for user registration for this app
         :return: message after validations for adding new user
@@ -40,7 +44,8 @@ class Login(Resource):
     """
      Flask-restful resource for retrieving user info.
     """
-
+    @swagger.model
+    @swagger.operation(notes='swagger is working')
     def get(self):
 
         req_data = request.get_json()
@@ -60,7 +65,8 @@ class AccountActivation(Resource):
     """
     Flask-restful resource for activating user account.
     """
-
+    @swagger.model
+    @swagger.operation(notes='swagger is working')
     def get(self, *args, **kwargs):
         token = request.args.get('activate')
         payload = jwt.decode(token, app.config.get('SECRET_KEY'), algorithms=["HS256"])
@@ -77,6 +83,8 @@ class AccountActivation(Resource):
 
 
 class ForgotPassword(Resource):
+    @swagger.model
+    @swagger.operation(notes='swagger is working')
     def get(self, *args, **kwargs):
         req_data = request.get_json()
         user = Users.objects.get(email=req_data.get('email'))
@@ -88,6 +96,8 @@ class ForgotPassword(Resource):
 
 
 class ResetPassword(Resource):
+    @swagger.model
+    @swagger.operation(notes='swagger is working')
     def get(self, *args, **kwargs):
         token = request.args.get('reset')
         payload = jwt.decode(token, app.config.get('SECRET_KEY'), algorithms=["HS256"])

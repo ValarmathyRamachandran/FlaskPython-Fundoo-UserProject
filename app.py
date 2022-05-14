@@ -8,11 +8,9 @@ from flask_restful_swagger import swagger
 load_dotenv()
 
 app = Flask(__name__)
-# api = Api(app)
-
 app.config['SECRET_KEY'] = 'SECRET_KEY'
 
-api = swagger.docs(Api(app), apiVersion='0.1', api_spec_url='/swagger')
+api = swagger.docs(Api(app), apiVersion='0.1', api_spec_url='/docs')
 
 
 def config_app_routes():
@@ -27,3 +25,5 @@ connect_db()
 
 if __name__ == '__main__':
     app.run(debug=True, port=4040)
+
+

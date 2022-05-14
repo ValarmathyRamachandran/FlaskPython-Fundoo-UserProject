@@ -46,9 +46,9 @@ class CreateNotes(Resource):
 
 
 class GetNotes(Resource):
-    @token_required
     @swagger.model
     @swagger.operation(notes='swagger is working')
+    @token_required
     def get(self, **kwargs):
         """
         :param kwargs: user information
