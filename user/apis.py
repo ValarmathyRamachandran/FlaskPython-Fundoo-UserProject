@@ -2,7 +2,6 @@ import json, jwt
 from flask import request, app, Flask, render_template
 from flask_restful import Resource
 from flask_restful_swagger import swagger
-
 from common import logger
 from common.exception import PasswordMismatched, AlreadyExist, NotExist
 from tasks import send_email
@@ -25,18 +24,18 @@ class Registration(Resource):
 
         req_data = request.data
         record = json.loads(req_data)
-        first_name = record.get('first_name')
-        last_name = record.get('last_name')
-        user_name = record.get('user_name')
-        email = record.get('email')
-        password = record.get('password')
-        confirm_password = record.get('confirm_password')
+        first_name = record['first_name']
+        last_name = record['last_name']
+        user_name = record['user_name']
+        email = record['email']
+        password = record['password']
+        confirm_password = record['confirm_password']
 
         if not confirm_password == password:
             return {'msg': 'Password and confirm Password must be same', 'code': 409}
 
         del record['confirm_password']
-        user = Users(first_name, last_name, user_name, email, password)
+        user = Users(first_name=first_name, last_name=last_name, user_name=user_name, email=email, password=password)
 
         if Users.objects.filter(email=user.email):
             return {'msg': 'User Already exists', 'code': 409}
@@ -44,7 +43,7 @@ class Registration(Resource):
             try:
                 token = generate_token(user.email, app.config['SECRET_KEY'])
                 template = render_template('activation_template.html', token=token)
-                send_email.sleep(user.email, "Account Activation", template, token)
+                send_email(user.email, "Account Activation", template, token)
                 user.save()
                 return {'msg': 'User Registered successfully', 'code': 201}
             except Exception as e:
