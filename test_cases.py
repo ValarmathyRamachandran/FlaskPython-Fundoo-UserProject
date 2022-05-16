@@ -21,19 +21,15 @@ def test_registration():
     assert response.status_code == 200
 
 
-def test_login():
+def test_get_user():
     client = app.test_client()
-    url = '/login'
+    url = '/getallusers'
 
-    login_data = {
-        "email": "valarmathi.95@gmail.com",
-        "password": "mike@123"
-
-    }
-
-    response = client.get(url, data=json.dumps(login_data))
-    assert response.status_code == 400
+    response = client.get(url)
+    result = json.loads(response.data).get('msg')
+    assert response.status_code == 200
+    assert type(result) is list
 
 
 test_registration()
-test_login()
+test_get_user()

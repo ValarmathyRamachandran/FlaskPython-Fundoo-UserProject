@@ -20,4 +20,5 @@ def to_json(self):
         "user_name": self.user_name,
         "email": self.email,
         "password": self.password,
-        "is_activ": self.is_active}
+        "is_activ": self.is_active
+    }

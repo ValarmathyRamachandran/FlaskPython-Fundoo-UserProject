@@ -9,9 +9,9 @@ notes_routes = [
     (UpdateNote, '/updatenote'),
     (DeleteNote, '/deletenote'),
     (GetTrash, '/gettrash'),
-    (NoteOperations, '/noteoperation',),
-    (GetPinned, '/getpinned',),
-    (GetArchived, '/getarchived',),
-    (NoteLabel, '/label',)
+    (NoteOperations, '/noteoperation'),
+    (GetPinned, '/getpinned'),
+    (GetArchived, '/getarchived'),
+    (NoteLabel, '/label')
 
 ]

@@ -141,3 +141,21 @@ class ResetPassword(Resource):
             user.save()
             return {'msg': 'password was changed successfully', 'code': 200}
         return {'msg': 'User is inactive', 'code': 403}
+
+
+class GetAllUsers(Resource):
+    @swagger.model
+    @swagger.operation(notes='swagger is working')
+    def get(self):
+        """
+                This api is used to get all users from users
+                :return: list of users present in the users
+                """
+        users = Users.objects.all()
+        if not users:
+            return {'error': 'Users Details Not Found', 'code': 404}
+        else:
+            list1 = []
+            for user in users:
+                list1.append(user.to_json())
+            return {"msg": list1, "code": 200}
