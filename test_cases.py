@@ -31,5 +31,6 @@ def test_get_user():
     assert type(result) is list
 
 
+
 test_registration()
 test_get_user()

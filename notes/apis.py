@@ -282,16 +282,40 @@ class NoteCollaborators(Resource):
 
         return {'msg': 'Collaborator added successfully', 'code': '200'}
 
-
-class Reminder(Resource):
-    @token_required
-    def post(self, **kwargs):
-        req_data = request.data
-        body = json.loads(req_data)
-        reminder = body.get('reminder')
-        notes = Notes()
-        now = int(round(time.time() * 1000))
-        then = now + 3600000  # one hour after `now`
-
+# class Reminder(Resource):
+#     @token_required
+#     def post(self, **kwargs):
+#         req_data = request.data
+#         body = json.loads(req_data)
+#         reminder = body.get('reminder')
+#         notes = Notes()
+#         now = int(round(time.time() * 1000))
+#         then = now + 3600000  # one hour after `now`
 
 
+# class Reminder(Resource):
+#     @token_required
+#     def post(self, **kwargs):
+#         user = kwargs.get('user')
+#         user_id = user.id
+#         ids = request.args.get('id')
+#         reminder = request.args.get('reminder')
+#         try:
+#
+#             note = Notes.objects.filter(user_id=user_id, id=ids).first()
+#             if not note:
+#                 raise ('Note is not present', 'code:400')
+#         except Exception as e:
+#             return e.__dict__
+#
+#         note.update(push__label=reminder)
+#         return {'msg': 'reminder added successfully', 'code': '200'}
+#
+#     def get(self, **kwargs):
+#         user = kwargs.get('user')
+#         user_id = user.id
+#         note = Notes.objects.all()
+#
+#         reminder = Notes.objects.filter(Q(user_id=user_id) & Q(is_deleted=False)).exclude(reminder=None)
+#
+#         return {'msg': reminder, 'code': 200}

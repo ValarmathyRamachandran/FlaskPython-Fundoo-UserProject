@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, SequenceField, IntField, ListField
+from mongoengine import Document, StringField, SequenceField, IntField
 
 
 class Label(Document):

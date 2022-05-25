@@ -20,7 +20,7 @@ client = Celery('task', broker='redis://localhost:6379',
 
 @client.task
 def send_email(To, Subject, template, token):
-
+    delay(1)
     # create message object instance
     msg = MIMEMultipart()
 

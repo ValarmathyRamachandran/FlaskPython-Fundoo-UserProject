@@ -2,7 +2,6 @@ import datetime
 from mongoengine import SequenceField, StringField, DateTimeField, Document, IntField, BooleanField, ListField, \
     ReferenceField
 
-import notes
 from labels import models
 
 
@@ -17,9 +16,7 @@ class Notes(Document):
     is_deleted = BooleanField(default=False)
     is_archived = BooleanField(default=False)
     label = ListField(ReferenceField(models.Label))
-    reminder = DateTimeField(default=datetime)
-
-    # collaborators = ListField(ReferenceField('self', required=False))
+    reminder = DateTimeField(auto_now_add=False, null=True)
 
     def to_json(self):
         notes = dict()
@@ -33,16 +30,6 @@ class Notes(Document):
         notes['is_deleted'] = str(self.is_deleted)
         notes['is_archived'] = str(self.is_archived)
         notes['label'] = self.label
-        notes['reminder'] = str(self.reminder)
-        return notes
+        notes['remainder'] = str(self.reminder)
 
-        # "id": self.id,
-    # "user_id": self.user_id,
-    # "title": self.title,
-    # "description": self.description,
-    # "date_created": str(self.date_created),
-    # "date_updated": str(self.date_updated),
-    # "is_pinned": str(self.is_pinned),
-    # "is_deleted": str(self.is_deleted),
-    # "is_archived": str(self.is_archived),
-    # "label": str(self.label)
+        return notes

@@ -1,7 +1,9 @@
 import json, jwt
-from flask import request, app, Flask, render_template
+from flask import request, app, Flask, render_template, Response
 from flask_restful import Resource
 from flask_restful_swagger import swagger
+from mongoengine import Q
+
 from common import logger
 from common.exception import PasswordMismatched, AlreadyExist, NotExist
 from tasks import send_email
@@ -43,7 +45,7 @@ class Registration(Resource):
             try:
                 token = generate_token(user.email, app.config['SECRET_KEY'])
                 template = render_template('activation_template.html', token=token)
-                send_email(user.email, "Account Activation", template, token)
+                send_email.delay(user.email, "Account Activation", template, token)
                 user.save()
                 return {'msg': 'User Registered successfully', 'code': 201}
             except Exception as e:
@@ -159,3 +161,6 @@ class GetAllUsers(Resource):
             for user in users:
                 list1.append(user.to_json())
             return {"msg": list1, "code": 200}
+
+
+
